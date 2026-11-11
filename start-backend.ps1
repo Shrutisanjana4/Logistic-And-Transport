@@ -8,19 +8,26 @@ if (Test-Path "$STS_JDK\bin\java.exe") {
     Write-Host "[PrimeRoute] Using Java from STS: $STS_JDK" -ForegroundColor Green
 }
 
-# Load local environment variables from frontend/.env.local or .env.local if present
-$ENV_FILE = if (Test-Path (Join-Path $PSScriptRoot "frontend\.env.local")) { Join-Path $PSScriptRoot "frontend\.env.local" } else { Join-Path $PSScriptRoot ".env.local" }
-if (Test-Path $ENV_FILE) {
-    Get-Content $ENV_FILE | ForEach-Object {
-        $line = $_.Trim()
-        if ($line -and !$line.StartsWith("#") -and $line.Contains("=")) {
-            $parts = $line.Split("=", 2)
-            $name = $parts[0].Trim()
-            $val = $parts[1].Trim()
-            [System.Environment]::SetEnvironmentVariable($name, $val, "Process")
+# Load local environment variables from backend/.env, frontend/.env.local, or .env.local if present
+$ENV_CANDIDATES = @(
+    (Join-Path $PSScriptRoot "backend\.env"),
+    (Join-Path $PSScriptRoot "frontend\.env.local"),
+    (Join-Path $PSScriptRoot ".env.local")
+)
+foreach ($cand in $ENV_CANDIDATES) {
+    if (Test-Path $cand) {
+        Get-Content $cand | ForEach-Object {
+            $line = $_.Trim()
+            if ($line -and !$line.StartsWith("#") -and $line.Contains("=")) {
+                $parts = $line.Split("=", 2)
+                $name = $parts[0].Trim()
+                $val = $parts[1].Trim()
+                [System.Environment]::SetEnvironmentVariable($name, $val, "Process")
+            }
         }
+        Write-Host "[PrimeRoute] Loaded environment variables from $cand" -ForegroundColor Green
+        break
     }
-    Write-Host "[PrimeRoute] Loaded environment variables from $ENV_FILE" -ForegroundColor Green
 }
 
 Write-Host "[PrimeRoute] Starting Spring Boot server at $BACKEND_DIR..." -ForegroundColor Cyan

@@ -1,9 +1,30 @@
-# Frontend
+# Environment files (NEVER commit secrets or real env files)
+.env
+.env.*
+*.env
+*.env.*
+*.local
+frontend/.env
+frontend/.env.*
+backend/.env
+backend/.env.*
+
+# Allow safe example templates
+!.env.example
+!*.env.example
+!frontend/.env.example
+!backend/.env.example
+
+# Scratch scripts & editor caches (remove internal tests/credentials from repo)
+scratch/
+frontend/scratch/
+.kombai/
+frontend/.kombai/
+
+# Frontend builds
 node_modules
 dist
 dist-ssr
-*.local
-.env.local
 
 # Logs
 logs
