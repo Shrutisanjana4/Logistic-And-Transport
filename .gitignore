@@ -20,6 +20,7 @@ scratch/
 frontend/scratch/
 .kombai/
 frontend/.kombai/
+test-payments.ps1
 
 # Frontend builds
 node_modules

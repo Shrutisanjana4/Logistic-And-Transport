@@ -397,7 +397,7 @@ export default function Contact() {
                           value={formData.fullName}
                           onChange={(e) => handleChange('fullName', e.target.value)}
                           onBlur={() => handleBlur('fullName')}
-                          placeholder="e.g. Shruti Sanjana Sahoo"
+                          placeholder="e.g. Alex Morgan"
                           style={{
                             width: '100%',
                             padding: '10px 12px',

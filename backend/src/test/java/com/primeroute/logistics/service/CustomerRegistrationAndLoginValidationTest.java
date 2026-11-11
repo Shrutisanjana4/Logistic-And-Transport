@@ -73,14 +73,14 @@ public class CustomerRegistrationAndLoginValidationTest {
     @DisplayName("1. Valid registration creates customer account and BCrypt encodes password")
     void testValidRegistrationSuccess() {
         RegisterRequest req = new RegisterRequest(
-                "Shruti Sahoo",
-                "shruti@gmail.com",
+                "Prime Customer",
+                "customer@primeroute.com",
                 "9876543210",
                 "Prime@12345",
                 "Acme Logistics Pvt Ltd"
         );
 
-        when(userRepository.existsByEmailIgnoreCase("shruti@gmail.com")).thenReturn(false);
+        when(userRepository.existsByEmailIgnoreCase("customer@primeroute.com")).thenReturn(false);
 
         String result = authService.register(req);
         assertEquals("Customer account created successfully.", result);
@@ -89,8 +89,8 @@ public class CustomerRegistrationAndLoginValidationTest {
         verify(userRepository).save(userCaptor.capture());
 
         User savedUser = userCaptor.getValue();
-        assertEquals("Shruti Sahoo", savedUser.getFullName());
-        assertEquals("shruti@gmail.com", savedUser.getEmail());
+        assertEquals("Prime Customer", savedUser.getFullName());
+        assertEquals("customer@primeroute.com", savedUser.getEmail());
         assertEquals("+91 9876543210", savedUser.getPhone());
         assertEquals(Role.CUSTOMER, savedUser.getRole());
         assertTrue(passwordEncoder.matches("Prime@12345", savedUser.getPassword()));
@@ -221,10 +221,10 @@ public class CustomerRegistrationAndLoginValidationTest {
     @Test
     @DisplayName("7. Valid login credentials return 200 with JWT token")
     void testValidLoginSuccess() {
-        LoginRequest req = new LoginRequest("shruti@gmail.com", "Prime@12345");
+        LoginRequest req = new LoginRequest("customer@primeroute.com", "Prime@12345");
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
-                .withUsername("shruti@gmail.com")
+                .withUsername("customer@primeroute.com")
                 .password(passwordEncoder.encode("Prime@12345"))
                 .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_CUSTOMER")))
                 .build();
@@ -234,22 +234,22 @@ public class CustomerRegistrationAndLoginValidationTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mockAuth);
         when(jwtService.generateToken(userDetails)).thenReturn("mock-jwt-token-12345");
 
-        User userEntity = new User("shruti@gmail.com", passwordEncoder.encode("Prime@12345"), "Shruti Sahoo", Role.CUSTOMER);
-        when(userRepository.findByEmailIgnoreCase("shruti@gmail.com")).thenReturn(Optional.of(userEntity));
+        User userEntity = new User("customer@primeroute.com", passwordEncoder.encode("Prime@12345"), "Prime Customer", Role.CUSTOMER);
+        when(userRepository.findByEmailIgnoreCase("customer@primeroute.com")).thenReturn(Optional.of(userEntity));
 
         LoginResponse response = authService.login(req);
 
         assertNotNull(response);
         assertEquals("mock-jwt-token-12345", response.getToken());
-        assertEquals("shruti@gmail.com", response.getEmail());
-        assertEquals("Shruti Sahoo", response.getFullName());
+        assertEquals("customer@primeroute.com", response.getEmail());
+        assertEquals("Prime Customer", response.getFullName());
         assertEquals("ROLE_CUSTOMER", response.getRole());
     }
 
     @Test
     @DisplayName("8. Wrong password returns generic 401 message (Invalid email or password)")
     void testWrongPasswordThrowsBadCredentials() {
-        LoginRequest req = new LoginRequest("shruti@gmail.com", "WrongPassword@123");
+        LoginRequest req = new LoginRequest("customer@primeroute.com", "WrongPassword@123");
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));

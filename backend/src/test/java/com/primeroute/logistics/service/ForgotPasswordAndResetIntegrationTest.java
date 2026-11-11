@@ -50,7 +50,7 @@ public class ForgotPasswordAndResetIntegrationTest {
 
     private User testCustomer;
     private final String rawInitialPassword = "InitialPassword@2026";
-    private final String email = "shrutisanjanasahoo@gmail.com";
+    private final String email = "customer.reset@primeroute.com";
 
     private LoginRequest createLoginReq(String em, String pass) {
         LoginRequest req = new LoginRequest();
@@ -66,7 +66,7 @@ public class ForgotPasswordAndResetIntegrationTest {
         testCustomer = new User(
                 email,
                 passwordEncoder.encode(rawInitialPassword),
-                "Shruti Sanjana Sahoo",
+                "PrimeRoute Customer",
                 Role.CUSTOMER
         );
         testCustomer.setId(99L);
@@ -221,7 +221,7 @@ public class ForgotPasswordAndResetIntegrationTest {
         User otherUser = new User("other@primeroute.com", passwordEncoder.encode("OtherPass@123"), "Other User", Role.CUSTOMER);
         otherUser.setId(100L);
 
-        String rawToken = "token-for-shruti";
+        String rawToken = "token-for-customer";
         String hashedToken = ForgotPasswordService.hashToken(rawToken);
         PasswordResetToken resetToken = new PasswordResetToken(hashedToken, testCustomer, LocalDateTime.now().plusMinutes(15));
         when(passwordResetTokenRepository.findByToken(hashedToken)).thenReturn(Optional.of(resetToken));

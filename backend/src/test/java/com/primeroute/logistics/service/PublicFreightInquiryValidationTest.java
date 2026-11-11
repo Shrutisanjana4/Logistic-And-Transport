@@ -43,7 +43,7 @@ public class PublicFreightInquiryValidationTest {
     private PublicFreightInquiryRequest createValidRequest() {
         PublicFreightInquiryRequest req = new PublicFreightInquiryRequest();
         req.setCompanyName("PrimeRoute Logistics Pvt. Ltd.");
-        req.setContactName("Shruti Sanjana Sahoo");
+        req.setContactName("Alex Morgan");
         req.setEmail("qa.inquiry@primeroute.test");
         req.setPhone("9876543210");
         req.setOrigin("Bengaluru Hub");
@@ -76,7 +76,7 @@ public class PublicFreightInquiryValidationTest {
         assertEquals("QUOTATION", response.getInquiryType());
         assertEquals("Quotation Request Received", response.getMessage());
         assertEquals("PrimeRoute Logistics Pvt. Ltd.", response.getCompanyName());
-        assertEquals("Shruti Sanjana Sahoo", response.getContactName());
+        assertEquals("Alex Morgan", response.getContactName());
 
         ArgumentCaptor<FreightInquiry> captor = ArgumentCaptor.forClass(FreightInquiry.class);
         verify(inquiryRepository, times(1)).save(captor.capture());
@@ -120,7 +120,7 @@ public class PublicFreightInquiryValidationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Shruti Sanjana Sahoo", "Ramesh Kumar", "Gudi Sahoo", "Priya Patel", "Dr. Jean-Pierre O'Connor", "A. P. J. Kalam"})
+    @ValueSource(strings = {"Alex Morgan", "Ramesh Kumar", "Rahul Sharma", "Priya Patel", "Dr. Jean-Pierre O'Connor", "A. P. J. Kalam"})
     @DisplayName("Accept legitimate contact names with spaces, apostrophes and hyphens")
     void testValidContactNames(String validContact) {
         PublicFreightInquiryRequest req = createValidRequest();
@@ -144,7 +144,7 @@ public class PublicFreightInquiryValidationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"test@gmail.com", "shruti.sanjana@gmail.com", "operations@primeroute.com", "contact@abclogistics.in"})
+    @ValueSource(strings = {"test@gmail.com", "alex.morgan@primeroute.com", "operations@primeroute.com", "contact@abclogistics.in"})
     @DisplayName("Accept legitimate business emails")
     void testValidEmails(String validEmail) {
         PublicFreightInquiryRequest req = createValidRequest();

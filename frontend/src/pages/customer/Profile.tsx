@@ -1016,7 +1016,7 @@ export default function CustomerProfilePage() {
                 setContactForm({ ...contactForm, fullName: e.target.value });
                 if (contactErrors.fullName) setContactErrors((prev) => ({ ...prev, fullName: '' }));
               }}
-              placeholder="e.g. Shrutisanjana Sahoo"
+              placeholder="e.g. Alex Morgan"
             />
             {contactErrors.fullName && <p className="form-error" style={{ color: '#dc2626', fontSize: 12, marginTop: 4 }}>{contactErrors.fullName}</p>}
           </div>
