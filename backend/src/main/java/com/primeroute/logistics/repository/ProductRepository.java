@@ -1,0 +1,17 @@
+package com.primeroute.logistics.repository;
+
+import com.primeroute.logistics.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    Optional<Product> findBySku(String sku);
+    Optional<Product> findBySkuIgnoreCase(String sku);
+    List<Product> findByActiveTrueOrderByNameAsc();
+    List<Product> findByCategoryIgnoreCaseAndActiveTrue(String category);
+    boolean existsBySkuIgnoreCase(String sku);
+}

@@ -1,3 +1,10 @@
+# Frontend
+node_modules
+dist
+dist-ssr
+*.local
+.env.local
+
 # Logs
 logs
 *.log
@@ -7,10 +14,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Backend (Maven & Eclipse)
+target/
+backend/target/
+!.mvn/wrapper/maven-wrapper.jar
+.settings/
+.classpath
+.project
+.factorypath
 
 # Editor directories and files
 .vscode/*

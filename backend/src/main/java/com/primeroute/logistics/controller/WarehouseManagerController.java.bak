@@ -1,0 +1,233 @@
+package com.primeroute.logistics.controller;
+
+import com.primeroute.logistics.dto.ApiResponse;
+import com.primeroute.logistics.dto.warehouse.*;
+import com.primeroute.logistics.entity.Driver;
+import com.primeroute.logistics.entity.Vehicle;
+import com.primeroute.logistics.entity.Warehouse;
+import com.primeroute.logistics.service.WarehouseManagerService;
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping({"/api/warehouse-manager", "/api/warehouse"})
+public class WarehouseManagerController {
+
+    private final WarehouseManagerService warehouseManagerService;
+
+    public WarehouseManagerController(WarehouseManagerService warehouseManagerService) {
+        this.warehouseManagerService = warehouseManagerService;
+    }
+
+    // ==========================================
+    // PROFILE & WAREHOUSE
+    // ==========================================
+
+    @GetMapping("/profile")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile() {
+        Map<String, Object> profile = warehouseManagerService.getManagerProfile();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse Manager profile retrieved", profile));
+    }
+
+    @GetMapping("/warehouse")
+    public ResponseEntity<ApiResponse<?>> getWarehouse() {
+        Object warehouse = warehouseManagerService.getWarehouseDetails();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse details retrieved", warehouse));
+    }
+
+    @PutMapping("/warehouse")
+    public ResponseEntity<ApiResponse<Warehouse>> updateWarehouse(@RequestBody UpdateWarehouseDetailsRequest request) {
+        Warehouse updated = warehouseManagerService.updateWarehouseDetails(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse details updated successfully", updated));
+    }
+
+    // ==========================================
+    // DASHBOARD
+    // ==========================================
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<WarehouseDashboardDTO>> getDashboard() {
+        WarehouseDashboardDTO dashboard = warehouseManagerService.getDashboard();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse dashboard metrics retrieved", dashboard));
+    }
+
+    // ==========================================
+    // INVENTORY & TRANSACTIONS
+    // ==========================================
+
+    @GetMapping("/inventory")
+    public ResponseEntity<ApiResponse<List<WarehouseInventoryDTO>>> getInventory(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status) {
+        List<WarehouseInventoryDTO> inventory = warehouseManagerService.getInventory(search, category, status);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse inventory retrieved successfully", inventory));
+    }
+
+    @PostMapping("/inventory/receive")
+    public ResponseEntity<ApiResponse<WarehouseInventoryDTO>> receiveStock(
+            @Valid @RequestBody ReceiveStockRequest request) {
+        WarehouseInventoryDTO received = warehouseManagerService.receiveStock(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Stock received successfully", received));
+    }
+
+    @PostMapping("/inventory/reserve")
+    public ResponseEntity<ApiResponse<WarehouseInventoryDTO>> reserveStock(
+            @Valid @RequestBody ReserveStockRequest request) {
+        WarehouseInventoryDTO reserved = warehouseManagerService.reserveStock(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Stock reserved successfully", reserved));
+    }
+
+    @PostMapping("/inventory/adjust")
+    public ResponseEntity<ApiResponse<WarehouseInventoryDTO>> adjustStock(
+            @Valid @RequestBody AdjustStockRequest request) {
+        WarehouseInventoryDTO adjusted = warehouseManagerService.adjustStock(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Stock adjusted successfully", adjusted));
+    }
+
+    @GetMapping("/inventory/transactions")
+    public ResponseEntity<ApiResponse<List<WarehouseTransactionDTO>>> getTransactions(
+            @RequestParam(required = false) String sku,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        List<WarehouseTransactionDTO> txs = warehouseManagerService.getTransactions(sku, startDate, endDate);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Inventory transactions retrieved successfully", txs));
+    }
+
+    // ==========================================
+    // SHIPMENTS & DISPATCH
+    // ==========================================
+
+    @GetMapping("/shipments")
+    public ResponseEntity<ApiResponse<List<WarehouseShipmentDTO>>> getWarehouseShipments() {
+        List<WarehouseShipmentDTO> shipments = warehouseManagerService.getAllWarehouseShipments();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse shipments retrieved successfully", shipments));
+    }
+
+    @GetMapping("/shipments/incoming")
+    public ResponseEntity<ApiResponse<List<WarehouseShipmentDTO>>> getIncomingShipments() {
+        List<WarehouseShipmentDTO> shipments = warehouseManagerService.getIncomingShipments();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Incoming shipments retrieved successfully", shipments));
+    }
+
+    @GetMapping("/shipments/outgoing")
+    public ResponseEntity<ApiResponse<List<WarehouseShipmentDTO>>> getOutgoingShipments() {
+        List<WarehouseShipmentDTO> shipments = warehouseManagerService.getOutgoingShipments();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Outgoing shipments retrieved successfully", shipments));
+    }
+
+    @GetMapping("/shipments/dispatch-ready")
+    public ResponseEntity<ApiResponse<List<WarehouseShipmentDTO>>> getDispatchReadyShipments() {
+        List<WarehouseShipmentDTO> shipments = warehouseManagerService.getDispatchReadyShipments();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Dispatch ready shipments retrieved successfully", shipments));
+    }
+
+    @GetMapping("/shipments/{id}")
+    public ResponseEntity<ApiResponse<WarehouseShipmentDTO>> getShipmentById(@PathVariable Long id) {
+        WarehouseShipmentDTO shipment = warehouseManagerService.getShipmentById(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Shipment details retrieved successfully", shipment));
+    }
+
+    @PatchMapping("/shipments/{id}/stage")
+    public ResponseEntity<ApiResponse<WarehouseShipmentDTO>> updateShipmentStage(
+            @PathVariable Long id,
+            @RequestParam String stage) {
+        WarehouseShipmentDTO updated = warehouseManagerService.updateShipmentStage(id, stage);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Operational stage updated successfully", updated));
+    }
+
+    @PostMapping("/shipments/{id}/start-picking")
+    public ResponseEntity<ApiResponse<WarehouseShipmentDTO>> startPicking(@PathVariable Long id) {
+        WarehouseShipmentDTO shipment = warehouseManagerService.startPicking(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse picking started successfully", shipment));
+    }
+
+    @PostMapping("/shipments/{id}/mark-packed")
+    public ResponseEntity<ApiResponse<WarehouseShipmentDTO>> markPacked(@PathVariable Long id) {
+        WarehouseShipmentDTO shipment = warehouseManagerService.markPacked(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Shipment marked as packed successfully", shipment));
+    }
+
+    @PostMapping({"/shipments/{id}/assign", "/shipments/{id}/assign-fleet"})
+    public ResponseEntity<ApiResponse<WarehouseShipmentDTO>> assignFleet(
+            @PathVariable Long id,
+            @RequestBody AssignFleetRequest request) {
+        WarehouseShipmentDTO assigned = warehouseManagerService.assignFleet(id, request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Driver and vehicle assigned successfully", assigned));
+    }
+
+    @PostMapping("/shipments/{id}/dispatch")
+    public ResponseEntity<ApiResponse<WarehouseShipmentDTO>> dispatchShipment(@PathVariable Long id) {
+        WarehouseShipmentDTO dispatched = warehouseManagerService.dispatchShipment(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Shipment dispatched successfully", dispatched));
+    }
+
+    // ==========================================
+    // FLEET & TRACKING
+    // ==========================================
+
+    @GetMapping("/fleet")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getFleet() {
+        List<Map<String, Object>> fleet = warehouseManagerService.getWarehouseFleet();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse fleet pairs retrieved successfully", fleet));
+    }
+
+    @GetMapping("/fleet/available")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAvailableFleet() {
+        List<Map<String, Object>> fleet = warehouseManagerService.getAvailableFleet();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Available fleet pairs retrieved successfully", fleet));
+    }
+
+    @GetMapping("/drivers")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getDrivers() {
+        List<Map<String, Object>> drivers = warehouseManagerService.getWarehouseDrivers();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse drivers retrieved successfully", drivers));
+    }
+
+    @GetMapping("/drivers/available")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAvailableDrivers() {
+        List<Map<String, Object>> drivers = warehouseManagerService.getAvailableDrivers();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Available drivers retrieved successfully", drivers));
+    }
+
+    @GetMapping("/vehicles")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getVehicles() {
+        List<Map<String, Object>> vehicles = warehouseManagerService.getWarehouseVehicles();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse vehicles retrieved successfully", vehicles));
+    }
+
+    @GetMapping("/vehicles/available")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAvailableVehicles() {
+        List<Map<String, Object>> vehicles = warehouseManagerService.getAvailableVehicles();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Available vehicles retrieved successfully", vehicles));
+    }
+
+    @GetMapping("/tracking/live")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getLiveTracking() {
+        Map<String, Object> data = warehouseManagerService.getLiveTrackingData();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Live tracking coordinates retrieved successfully", data));
+    }
+
+    // ==========================================
+    // REPORTS & NOTIFICATIONS
+    // ==========================================
+
+    @GetMapping("/reports")
+    public ResponseEntity<ApiResponse<WarehouseReportDTO>> getReports(
+            @RequestParam(required = false) String dateRange) {
+        WarehouseReportDTO report = warehouseManagerService.getReports(dateRange);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse report data retrieved successfully", report));
+    }
+
+    @GetMapping("/notifications")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getNotifications() {
+        List<Map<String, Object>> list = warehouseManagerService.getNotifications();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Warehouse notifications retrieved successfully", list));
+    }
+}

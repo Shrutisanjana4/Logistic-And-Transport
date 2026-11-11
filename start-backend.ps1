@@ -1,6 +1,6 @@
 # PrimeRoute Logistics - Backend Startup Script
 $STS_JDK = "C:\Users\shrut\Downloads\spring-tools\sts-5.0.0.RELEASE\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_25.0.1.v20251108-1451\jre"
-$BACKEND_DIR = "C:\Users\shrut\Documents\workspace-spring-tools-for-eclipse-5.0.0.RELEASE\Logistics-management"
+$BACKEND_DIR = if (Test-Path "$PSScriptRoot\backend\pom.xml") { "$PSScriptRoot\backend" } else { "C:\Users\shrut\Documents\workspace-spring-tools-for-eclipse-5.0.0.RELEASE\Logistics-management" }
 
 if (Test-Path "$STS_JDK\bin\java.exe") {
     $env:JAVA_HOME = $STS_JDK
@@ -8,8 +8,8 @@ if (Test-Path "$STS_JDK\bin\java.exe") {
     Write-Host "[PrimeRoute] Using Java from STS: $STS_JDK" -ForegroundColor Green
 }
 
-# Load local environment variables from .env.local if present
-$ENV_FILE = Join-Path $PSScriptRoot ".env.local"
+# Load local environment variables from frontend/.env.local or .env.local if present
+$ENV_FILE = if (Test-Path (Join-Path $PSScriptRoot "frontend\.env.local")) { Join-Path $PSScriptRoot "frontend\.env.local" } else { Join-Path $PSScriptRoot ".env.local" }
 if (Test-Path $ENV_FILE) {
     Get-Content $ENV_FILE | ForEach-Object {
         $line = $_.Trim()
@@ -20,7 +20,7 @@ if (Test-Path $ENV_FILE) {
             [System.Environment]::SetEnvironmentVariable($name, $val, "Process")
         }
     }
-    Write-Host "[PrimeRoute] Loaded environment variables from .env.local" -ForegroundColor Green
+    Write-Host "[PrimeRoute] Loaded environment variables from $ENV_FILE" -ForegroundColor Green
 }
 
 Write-Host "[PrimeRoute] Starting Spring Boot server at $BACKEND_DIR..." -ForegroundColor Cyan
